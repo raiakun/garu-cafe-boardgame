@@ -1,8 +1,7 @@
 // admin.html: コメント確認（削除はスプレッドシートを手動編集）
 
-// 簡易パスワード保護。本格的なアクセス制御ではないので、公開リポジトリ等に
-// 上げる場合は別途注意すること。
-const ADMIN_PASSWORD = "ru-garu-cafe";
+// パスワードの正解はここには置かない。入力値を Apps Script に送り、
+// サーバー側（スクリプト プロパティ ADMIN_PASSWORD）で照合してもらう。
 
 const loginGate = document.getElementById("loginGate");
 const loginBtn = document.getElementById("loginBtn");
@@ -10,20 +9,24 @@ const adminContent = document.getElementById("adminContent");
 const resultCountEl = document.getElementById("resultCount");
 const tableBody = document.getElementById("commentTableBody");
 
-loginBtn.addEventListener("click", () => {
+loginBtn.addEventListener("click", async () => {
   const input = window.prompt("管理者パスワードを入力してください");
   if (input === null) return;
 
-  if (input === ADMIN_PASSWORD) {
+  loginBtn.disabled = true;
+  const ok = await loadComments(input);
+  loginBtn.disabled = false;
+
+  if (ok) {
     loginGate.style.display = "none";
     adminContent.style.display = "block";
-    loadComments();
   } else {
     window.alert("パスワードが違います。");
   }
 });
 
-async function loadComments() {
+// 戻り値: パスワードが正しく表示できたら true、それ以外は false
+async function loadComments(password) {
   tableBody.innerHTML = `<tr><td colspan="7">読み込み中...</td></tr>`;
 
   let games = [];
@@ -31,12 +34,16 @@ async function loadComments() {
   try {
     [games, comments] = await Promise.all([
       apiGet({ action: "getGames" }),
-      apiGet({ action: "getComments" }),
+      apiGet({ action: "getComments", password }),
     ]);
   } catch (err) {
     tableBody.innerHTML = `<tr><td colspan="7">読み込みに失敗しました。</td></tr>`;
     console.error(err);
-    return;
+    return false;
+  }
+
+  if (comments && comments.error === "unauthorized") {
+    return false;
   }
 
   const gameNameById = new Map(games.map((g) => [String(g.id), g.name]));
@@ -45,7 +52,7 @@ async function loadComments() {
 
   if (comments.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="7">コメントはまだありません。</td></tr>`;
-    return;
+    return true;
   }
 
   tableBody.innerHTML = comments.map((c, i) => rowHtml(c, i, gameNameById)).join("");
@@ -56,6 +63,8 @@ async function loadComments() {
       showDeleteGuide(c);
     });
   });
+
+  return true;
 }
 
 function rowHtml(c, index, gameNameById) {
