@@ -34,7 +34,7 @@ async function init() {
     return;
   }
 
-  allGames = allGames.filter((g) => !hasUnknownSpec(g));
+  allGames = allGames.filter((g) => !hasUnknownSpec(g) && isAvailable(g.available));
 
   buildFilterOptions(allGames);
   render();
@@ -60,6 +60,15 @@ function buildFilterOptions(games) {
 
   genres.forEach((g) => filterGenre.appendChild(new Option(g, g)));
   difficulties.forEach((d) => filterDifficulty.appendChild(new Option(d, d)));
+}
+
+// "不問"（人数制限なし）や空欄は「制限なし」として扱う
+function parsePlayerBound(value, unlimitedValue) {
+  if (value === "不問" || value === "" || value === null || value === undefined) {
+    return unlimitedValue;
+  }
+  const n = Number(value);
+  return Number.isFinite(n) ? n : unlimitedValue;
 }
 
 function hasUnknownSpec(game) {
@@ -97,8 +106,8 @@ function matchesFilters(game) {
 
   if (filterPlayers.value) {
     const n = Number(filterPlayers.value);
-    const min = Number(game.minPlayers) || 0;
-    const max = Number(game.maxPlayers) || Infinity;
+    const min = parsePlayerBound(game.minPlayers, 0);
+    const max = parsePlayerBound(game.maxPlayers, Infinity);
     if (n === 8) {
       if (max < 8) return false;
     } else if (n < min || n > max) {
@@ -139,7 +148,6 @@ function render() {
 }
 
 function cardHtml(game) {
-  const available = isAvailable(game.available);
   const img = thumbUrl(game.imageId);
   const imgTag = img
     ? `<img class="thumb" src="${img}" alt="${escapeHtml(game.name)}" loading="lazy">`
@@ -149,9 +157,6 @@ function cardHtml(game) {
     <a class="game-card" href="game.html?id=${encodeURIComponent(game.id)}">
       ${imgTag}
       <div class="card-body">
-        <span class="badge ${available ? "available" : "unavailable"}">
-          ${available ? "貸出可" : "貸出中"}
-        </span>
         <div class="card-title">${escapeHtml(game.name)}</div>
         <div class="card-meta">${escapeHtml(game.genre || "")}</div>
         <div class="card-meta">${escapeHtml(game.recommendedPlayers || "")} / ${escapeHtml(game.playTime || "")}</div>
