@@ -165,7 +165,7 @@ function thumbUrl(imageId) {
 }
 
 function isAvailable(value) {
-  return value === true || String(value).toUpperCase() === "TRUE";
+  return value === true || String(value).toUpperCase() === "TRUE" || value === "貸出可";
 }
 
 // 通常のYouTube URL / 短縮URLどちらからも動画IDを取り出し、埋め込み用URLを作る
