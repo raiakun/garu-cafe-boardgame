@@ -82,7 +82,7 @@ function parsePlayTime(text) {
 }
 
 function isAvailable(value) {
-  return value === true || String(value).toUpperCase() === "TRUE";
+  return value === true || String(value).toUpperCase() === "TRUE" || value === "貸出可";
 }
 
 function matchesFilters(game) {
