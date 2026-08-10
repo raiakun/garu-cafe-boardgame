@@ -41,7 +41,6 @@ async function loadGame() {
 }
 
 function detailHtml(game) {
-  const available = isAvailable(game.available);
   const img = thumbUrl(game.imageId);
   const imgTag = img
     ? `<img class="detail-thumb" src="${img}" alt="${escapeHtml(game.name)}">`
@@ -53,9 +52,6 @@ function detailHtml(game) {
     <div class="game-detail">
       ${imgTag}
       <div>
-        <span class="badge ${available ? "available" : "unavailable"}">
-          ${available ? "貸出可" : "貸出中"}
-        </span>
         <h2>${escapeHtml(game.name)}</h2>
         ${game.officialName ? `<p class="card-meta">正式名称: ${escapeHtml(game.officialName)}</p>` : ""}
 
@@ -162,10 +158,6 @@ function thumbUrl(imageId) {
   if (!imageId) return "";
   if (/^https?:\/\//.test(imageId)) return imageId;
   return `https://drive.google.com/thumbnail?id=${encodeURIComponent(imageId)}&sz=w600`;
-}
-
-function isAvailable(value) {
-  return value === true || String(value).toUpperCase() === "TRUE" || value === "貸出可";
 }
 
 // 通常のYouTube URL / 短縮URLどちらからも動画IDを取り出し、埋め込み用URLを作る
