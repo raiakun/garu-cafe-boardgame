@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理画面 | がるカフェ</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a href="index.html"><h1>がるカフェ ボードゲーム検索（管理画面）</h1></a>
+</header>
+
+<main>
+  <div id="loginGate" class="admin-login">
+    <p>この先は管理者専用ページです。</p>
+    <button id="loginBtn" type="button">パスワードを入力して開く</button>
+  </div>
+
+  <div id="adminContent" style="display:none;">
+    <p>
+      ゲーム情報の追加・編集は Google スプレッドシートを直接編集してください。<br>
+      このページはコメントの確認と削除案内のみを行います。
+    </p>
+    <p class="result-count" id="resultCount"></p>
+
+    <div style="overflow-x:auto;">
+      <table class="admin-table" id="commentTable">
+        <thead>
+          <tr>
+            <th>ゲームID</th>
+            <th>ゲーム名</th>
+            <th>投稿者</th>
+            <th>評価</th>
+            <th>コメント</th>
+            <th>投稿日</th>
+            <th>削除</th>
+          </tr>
+        </thead>
+        <tbody id="commentTableBody">
+          <tr><td colspan="7">読み込み中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
